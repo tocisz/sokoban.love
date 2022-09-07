@@ -17,7 +17,9 @@ function love.load()
     qPlayer = love.graphics.newQuad(1+tile_x*3, tile_y-1, tile_x, tile_y, dx, xy)
 
     level:generate()
-    canvas = love.graphics.newCanvas()
+    level_px_width = level.width * tile_x
+    level_px_height = level.height * tile_y
+    canvas = love.graphics.newCanvas(level_px_width, level_px_height)
 end
 
 function level:generate()
@@ -27,73 +29,88 @@ function level:generate()
    for j = 1, self.height do
       self.square[j] = {}
       for i = 1, self.width do
-
          local r = math.random()
          local what
          if r < 0.6 then
+            what = ' '
+         elseif r < 0.7 then
             what = '#'
          elseif r < 0.8 then
+            what = '*'
+         elseif r < 0.9 then
             what = '$'
          else
             what = '.'
          end
-
          self.square[j][i] = what
       end
    end
-   self.player = { j = 5, i = 5}
+   self.player = { j = 5, i = 5 }
 end
 
 function level:draw(canvas)
+   local what
+   local x, y
+   spriteBatch:clear()
+   for j = 1, self.height do
+      for i = 1, self.width do
+         what = self.square[j][i]
+         y = (j-1) * tile_y
+         x = (i-1) * tile_x
+         if what == ' ' then
+            spriteBatch:add(qEmpty, x, y)
+         elseif what == '.' then
+            spriteBatch:add(qEmptyOk, x, y)
+         elseif what == '#' then
+            spriteBatch:add(qBrick, x, y)
+         elseif what == '$' then
+            spriteBatch:add(qBox, x, y)
+         elseif what == '*' then
+            spriteBatch:add(qBoxOk, x, y)
+         end
+      end
+   end
+   y = (self.player.j-1) * tile_y
+   x = (self.player.i-1) * tile_x
+   spriteBatch:add(qPlayer, x, y)
+   love.graphics.setCanvas(canvas)
+   love.graphics.draw(spriteBatch)
+   love.graphics.setCanvas()
 end
- 
+
+redraw = true
 function love.update(dt)
---     if love.keyboard.isDown("right") then
---        x = x + (speed * dt)
---     end
---     if love.keyboard.isDown("left") then
---        x = x - (speed * dt)
---     end
+    if love.keyboard.isDown("right") then
+      level.player.i = level.player.i + 1
+      redraw = true
+   end
+    if love.keyboard.isDown("left") then
+      level.player.i = level.player.i - 1
+      redraw = true
+   end
  
---     if love.keyboard.isDown("down") then
---        y = y + (speed * dt)
---     end
---     if love.keyboard.isDown("up") then
---        y = y - (speed * dt)
---     end
-   if love.keyboard.isDown("escape") then
+    if love.keyboard.isDown("down") then
+      level.player.j = level.player.j + 1
+      redraw = true
+   end
+    if love.keyboard.isDown("up") then
+      level.player.j = level.player.j - 1
+      redraw = true
+   end
+
+    if love.keyboard.isDown("escape") then
       love.event.quit()
    end
 end
  
 function love.draw()
    width, height = love.graphics.getDimensions()
-   if time % 60 == 0 then
-      spriteBatch:clear()
-      for y = 0, height, tile_y do
-         for x = 0, width, tile_x do
-            r = math.random()
-            if r < 0.5 then
-               spriteBatch:add(qEmpty, x, y)
-            elseif r < 0.6 then
-               spriteBatch:add(qPlayer, x, y)
-            elseif r < 0.7 then
-               spriteBatch:add(qEmptyOk, x, y)
-            elseif r < 0.8 then
-               spriteBatch:add(qBoxOk, x, y)
-            elseif r < 0.9 then
-               spriteBatch:add(qBrick, x, y)
-            else
-               spriteBatch:add(qBox, x, y)
-            end
-         end
-      end
-      love.graphics.setCanvas(canvas)
-      love.graphics.draw(spriteBatch)
-      love.graphics.setCanvas()
-      time = 0
+   if redraw then
+      level:draw(canvas)
+      redraw = false
    end
-   time = time + 1
-   love.graphics.draw(canvas)
+   offset_x = math.floor((width - level_px_width)/2)
+   offset_y = math.floor((height - level_px_height)/2)
+   love.graphics.draw(canvas, offset_x, offset_y)
 end
  
