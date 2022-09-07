@@ -88,6 +88,57 @@ function board:draw(canvas)
    love.graphics.setCanvas()
 end
 
+function board:move(command)
+   local dj, di, can_move
+   if     command == commands.right then dj, di = 0, 1
+   elseif command == commands.left  then dj, di = 0, -1
+   elseif command == commands.down  then dj, di = 1, 0
+   elseif command == commands.up    then dj, di = -1, 0
+   else
+      return false
+   end
+
+   if board:can_move(dj, di) then
+      self.player.j = self.player.j + dj
+      self.player.i = self.player.i + di
+      return true
+   end
+   return false
+end
+
+-- can player move in given direction
+function board:can_move(dj, di)
+   new_j = self.player.j + dj
+   new_i = self.player.i + di
+   if board:is_outside(new_j, new_i) then
+      return false
+   elseif board:is_empty(new_j, new_i) then
+      return true
+   elseif self.square[new_j][new_i] == '$' or self.square[new_j][new_i] == '*' then
+      local next_j = new_j + dj
+      local next_i = new_i + di
+      local push = board:is_empty(next_j, next_i)
+      -- do push
+      if push then
+         local from_goal = self.square[new_j][new_i] == '*'
+         local to_goal = self.square[next_j][next_i] == '.'
+         self.square[new_j][new_i]   = from_goal and '.' or ' '
+         self.square[next_j][next_i] = to_goal   and '*' or '$'
+      end
+      return push
+   end
+   return false
+end
+
+function board:is_outside(j, i)
+   return i < 1 or i > self.width or j < 1 or j > self.height
+end
+
+function board:is_empty(j, i)
+   return not board:is_outside(j, i)
+          and (self.square[j][i] == ' ' or self.square[j][i] == '.')
+end
+
 function love.keypressed(key)
    if key == "up" then command = commands.up
    elseif key == "down" then command = commands.down
@@ -98,19 +149,8 @@ function love.keypressed(key)
 end
 
 function love.update(dt)
-   if command == commands.right then
-      board.player.i = board.player.i + 1
-      redraw = true
-   elseif command == commands.left then
-      board.player.i = board.player.i - 1
-      redraw = true
-   elseif command == commands.down then
-      board.player.j = board.player.j + 1
-      redraw = true
-   elseif command == commands.up then
-      board.player.j = board.player.j - 1
-      redraw = true
-   elseif command == commands.exit then
+   redraw = redraw or board:move(command)
+   if command == commands.exit then
       love.event.quit()
    end
    command = nil
