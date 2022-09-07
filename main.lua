@@ -1,5 +1,4 @@
 tile_x, tile_y = 24, 24
-time = 0
 
 board = {}
 
@@ -11,6 +10,8 @@ commands = {
    exit = {}
 }
 command = nil
+
+redraw = true
 
 function love.load()
     math.randomseed(os.time())
@@ -87,7 +88,15 @@ function board:draw(canvas)
    love.graphics.setCanvas()
 end
 
-redraw = true
+function love.keypressed(key)
+   if key == "up" then command = commands.up
+   elseif key == "down" then command = commands.down
+   elseif key == "left" then command = commands.left
+   elseif key == "right" then command = commands.right
+   elseif key == "escape" then command = commands.exit
+   end
+end
+
 function love.update(dt)
    if command == commands.right then
       board.player.i = board.player.i + 1
@@ -105,15 +114,6 @@ function love.update(dt)
       love.event.quit()
    end
    command = nil
-end
-
-function love.keypressed(key)
-   if key == "up" then command = commands.up
-   elseif key == "down" then command = commands.down
-   elseif key == "left" then command = commands.left
-   elseif key == "right" then command = commands.right
-   elseif key == "escape" then command = commands.exit
-   end
 end
  
 function love.draw()
