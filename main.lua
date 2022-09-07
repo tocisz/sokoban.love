@@ -28,6 +28,7 @@ function love.load()
     qEmpty = love.graphics.newQuad(1+tile_x, tile_y, tile_x, tile_y, dx, xy)
     qEmptyOk = love.graphics.newQuad(1+tile_x*2, tile_y, tile_x, tile_y, dx, xy)
     qPlayer = love.graphics.newQuad(1+tile_x*3, tile_y-1, tile_x, tile_y, dx, xy)
+    width, height = love.graphics.getDimensions()
 
     screens:set_screen('title')
 end
@@ -177,10 +178,9 @@ screens = {
       init = function()
          canvas = love.graphics.newCanvas()
          love.graphics.setCanvas(canvas)
-         love.graphics.setFont(love.graphics.newFont(50))
-         love.graphics.print("Sokoban", 300, 150)
-         love.graphics.setFont(love.graphics.newFont(30))
-         love.graphics.print("press any key to start", 250, 280)
+         local cy = height / 2
+         print_centered(cy-150, love.graphics.newFont(50), "Sokoban")
+         print_centered(cy, love.graphics.newFont(30), "press any key to start")
          love.graphics.setCanvas()
       end
    },
@@ -216,14 +216,11 @@ screens = {
          command = nil
       end,
       draw = function()
-         width, height = love.graphics.getDimensions()
          if redraw then
             board:draw(canvas)
             redraw = false
          end
-         offset_x = math.floor((width - board_px_width)/2)
-         offset_y = math.floor((height - board_px_height)/2)
-         love.graphics.draw(canvas, offset_x, offset_y)
+         love.graphics.draw(canvas, cx(board_px_width), cy(board_px_height))
       end
    },
 
@@ -231,10 +228,9 @@ screens = {
       init = function()
          canvas = love.graphics.newCanvas()
          love.graphics.setCanvas(canvas)
-         love.graphics.setFont(love.graphics.newFont(50))
-         love.graphics.print("Congratulations!", 200, 150)
-         love.graphics.setFont(love.graphics.newFont(30))
-         love.graphics.print("LEVEL COMPLETE", 280, 280)
+         local cy = height / 2
+         print_centered(cy-150, love.graphics.newFont(50), "Congratulations!")
+         print_centered(cy, love.graphics.newFont(30), "LEVEL COMPLETE")
          love.graphics.setCanvas()
       end
    }
@@ -246,4 +242,17 @@ function screens:set_screen(name)
    love.draw = self[name].draw
    love.keypressed = self[name].keypressed
    self[name].init()
+end
+
+function cx(w)
+   return math.floor((width - w)/2)
+end
+
+function cy(h)
+   return math.floor((height - h)/2)
+end
+
+function print_centered(y, font, text)
+   love.graphics.setFont(font)
+   love.graphics.print(text, cx(font:getWidth(text)), y)
 end
