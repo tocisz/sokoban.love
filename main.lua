@@ -7,7 +7,9 @@ commands = {
    down = {},
    left = {},
    right = {},
-   exit = {}
+   exit = {},
+   restart = {},
+   enter = {}
 }
 command = nil
 
@@ -27,10 +29,7 @@ function love.load()
     qEmptyOk = love.graphics.newQuad(1+tile_x*2, tile_y, tile_x, tile_y, dx, xy)
     qPlayer = love.graphics.newQuad(1+tile_x*3, tile_y-1, tile_x, tile_y, dx, xy)
 
-    board:read()
-    board_px_width = board.width * tile_x
-    board_px_height = board.height * tile_y
-    canvas = love.graphics.newCanvas(board_px_width, board_px_height)
+    screens:set_screen('title')
 end
 
 function board:read()
@@ -150,36 +149,101 @@ function board:is_win()
    return true
 end
 
-function love.keypressed(key)
-   if     key == "up"     then command = commands.up
-   elseif key == "down"   then command = commands.down
-   elseif key == "left"   then command = commands.left
-   elseif key == "right"  then command = commands.right
-   elseif key == "escape" then command = commands.exit
+Splash = {
+   keypressed = function(key)
+      command = commands.enter
+   end,
+   update = function()
+      if command == commands.enter then
+         screens:set_screen('game')
+      end
+      command = nil
+   end,
+   draw = function()
+      love.graphics.draw(canvas)
    end
+}
+
+function Splash:new(o)
+   o = o or {}
+   setmetatable(o, self)
+   self.__index = self
+   return o
 end
 
-function love.update(dt)
-   local moved = board:move(command)
-   if moved and board:is_win() then
-      print("You won!")
-      love.event.quit()
-   end
-   redraw = redraw or moved
-   if command == commands.exit then
-      love.event.quit()
-   end
-   command = nil
+screens = {
+
+   title = Splash:new{
+      init = function()
+         canvas = love.graphics.newCanvas()
+         love.graphics.setCanvas(canvas)
+         love.graphics.setFont(love.graphics.newFont(50))
+         love.graphics.print("Sokoban", 300, 150)
+         love.graphics.setFont(love.graphics.newFont(30))
+         love.graphics.print("press any key to start", 250, 280)
+         love.graphics.setCanvas()
+      end
+   },
+
+   game = {
+      init = function()
+         board:read()
+         board_px_width = board.width * tile_x
+         board_px_height = board.height * tile_y
+         canvas = love.graphics.newCanvas(board_px_width, board_px_height)
+      end,
+      keypressed = function(key)
+         if     key == "up"     then command = commands.up
+         elseif key == "down"   then command = commands.down
+         elseif key == "left"   then command = commands.left
+         elseif key == "right"  then command = commands.right
+         elseif key == "escape" then command = commands.exit
+         elseif key == "r"      then command = commands.restart
+         end
+      end,
+      update = function(dt)
+         local moved = board:move(command)
+         if moved and board:is_win() then
+            screens:set_screen('congrats')
+         end
+         redraw = redraw or moved
+         if command == commands.restart then
+            board:read()
+            redraw = true
+         elseif command == commands.exit then
+            love.event.quit()
+         end
+         command = nil
+      end,
+      draw = function()
+         width, height = love.graphics.getDimensions()
+         if redraw then
+            board:draw(canvas)
+            redraw = false
+         end
+         offset_x = math.floor((width - board_px_width)/2)
+         offset_y = math.floor((height - board_px_height)/2)
+         love.graphics.draw(canvas, offset_x, offset_y)
+      end
+   },
+
+   congrats = Splash:new{
+      init = function()
+         canvas = love.graphics.newCanvas()
+         love.graphics.setCanvas(canvas)
+         love.graphics.setFont(love.graphics.newFont(50))
+         love.graphics.print("Congratulations!", 200, 150)
+         love.graphics.setFont(love.graphics.newFont(30))
+         love.graphics.print("LEVEL COMPLETE", 280, 280)
+         love.graphics.setCanvas()
+      end
+   }
+
+}
+
+function screens:set_screen(name)
+   love.update = self[name].update
+   love.draw = self[name].draw
+   love.keypressed = self[name].keypressed
+   self[name].init()
 end
- 
-function love.draw()
-   width, height = love.graphics.getDimensions()
-   if redraw then
-      board:draw(canvas)
-      redraw = false
-   end
-   offset_x = math.floor((width - board_px_width)/2)
-   offset_y = math.floor((height - board_px_height)/2)
-   love.graphics.draw(canvas, offset_x, offset_y)
-end
- 
