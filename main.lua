@@ -141,6 +141,15 @@ function board:is_empty(j, i)
           and (self.square[j][i] == ' ' or self.square[j][i] == '.')
 end
 
+function board:is_win()
+   for j, line in ipairs(self.square) do
+      for i, c in ipairs(line) do
+         if c == '.' then return false end
+      end
+   end
+   return true
+end
+
 function love.keypressed(key)
    if     key == "up"     then command = commands.up
    elseif key == "down"   then command = commands.down
@@ -151,7 +160,12 @@ function love.keypressed(key)
 end
 
 function love.update(dt)
-   redraw = redraw or board:move(command)
+   local moved = board:move(command)
+   if moved and board:is_win() then
+      print("You won!")
+      love.event.quit()
+   end
+   redraw = redraw or moved
    if command == commands.exit then
       love.event.quit()
    end
