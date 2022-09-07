@@ -1,7 +1,7 @@
 tile_x, tile_y = 24, 24
 time = 0
 
-level = {}
+board = {}
 
 commands = {
    up = {},
@@ -26,13 +26,13 @@ function love.load()
     qEmptyOk = love.graphics.newQuad(1+tile_x*2, tile_y, tile_x, tile_y, dx, xy)
     qPlayer = love.graphics.newQuad(1+tile_x*3, tile_y-1, tile_x, tile_y, dx, xy)
 
-    level:generate()
-    level_px_width = level.width * tile_x
-    level_px_height = level.height * tile_y
-    canvas = love.graphics.newCanvas(level_px_width, level_px_height)
+    board:generate()
+    board_px_width = board.width * tile_x
+    board_px_height = board.height * tile_y
+    canvas = love.graphics.newCanvas(board_px_width, board_px_height)
 end
 
-function level:generate()
+function board:generate()
    self.width = 20
    self.height = 10
    self.square = {}
@@ -58,7 +58,7 @@ function level:generate()
    self.player = { j = 5, i = 5 }
 end
 
-function level:draw(canvas)
+function board:draw(canvas)
    local what, x, y
    spriteBatch:clear()
    for j = 1, self.height do
@@ -90,18 +90,18 @@ end
 redraw = true
 function love.update(dt)
    if command == commands.right then
-      level.player.i = level.player.i + 1
+      board.player.i = board.player.i + 1
       redraw = true
    elseif command == commands.left then
-      level.player.i = level.player.i - 1
+      board.player.i = board.player.i - 1
       redraw = true
    elseif command == commands.down then
-      level.player.j = level.player.j + 1
+      board.player.j = board.player.j + 1
       redraw = true
    elseif command == commands.up then
-      level.player.j = level.player.j - 1
+      board.player.j = board.player.j - 1
       redraw = true
-   elseif love.keyboard.isDown("escape") then
+   elseif command == commands.exit then
       love.event.quit()
    end
    command = nil
@@ -119,11 +119,11 @@ end
 function love.draw()
    width, height = love.graphics.getDimensions()
    if redraw then
-      level:draw(canvas)
+      board:draw(canvas)
       redraw = false
    end
-   offset_x = math.floor((width - level_px_width)/2)
-   offset_y = math.floor((height - level_px_height)/2)
+   offset_x = math.floor((width - board_px_width)/2)
+   offset_y = math.floor((height - board_px_height)/2)
    love.graphics.draw(canvas, offset_x, offset_y)
 end
  
