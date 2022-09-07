@@ -27,36 +27,38 @@ function love.load()
     qEmptyOk = love.graphics.newQuad(1+tile_x*2, tile_y, tile_x, tile_y, dx, xy)
     qPlayer = love.graphics.newQuad(1+tile_x*3, tile_y-1, tile_x, tile_y, dx, xy)
 
-    board:generate()
+    board:read()
     board_px_width = board.width * tile_x
     board_px_height = board.height * tile_y
     canvas = love.graphics.newCanvas(board_px_width, board_px_height)
 end
 
-function board:generate()
-   self.width = 20
-   self.height = 10
+function board:read()
+   local t, ch, i, j
+
+   self.width = 0
    self.square = {}
-   for j = 1, self.height do
-      self.square[j] = {}
-      for i = 1, self.width do
-         local r = math.random()
-         local what
-         if r < 0.6 then
-            what = ' '
-         elseif r < 0.7 then
-            what = '#'
-         elseif r < 0.8 then
-            what = '*'
-         elseif r < 0.9 then
-            what = '$'
-         else
-            what = '.'
-         end
-         self.square[j][i] = what
+
+   j = 1
+   for line in love.filesystem.lines("levels.txt") do
+      if #line > self.width then
+         self.width = #line
       end
-   end
-   self.player = { j = 5, i = 5 }
+
+      t = {}
+      for i = 1, #line do
+         ch = line:sub(i,i)
+         if ch == '@' then
+            self.player = { j = j, i = i }
+            ch = ' '
+         end
+         table.insert(t, ch)
+      end
+
+      table.insert(self.square, t)
+      j = j + 1
+    end
+    self.height = j - 1
 end
 
 function board:draw(canvas)
