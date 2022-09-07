@@ -1,6 +1,7 @@
 tile_x, tile_y = 24, 24
 
 board = {}
+level = 1
 
 commands = {
    up = {},
@@ -9,7 +10,9 @@ commands = {
    right = {},
    exit = {},
    restart = {},
-   enter = {}
+   enter = {},
+   next_lvl = {},
+   previous_lvl = {}
 }
 command = nil
 
@@ -33,32 +36,83 @@ function love.load()
     screens:set_screen('title')
 end
 
+index = {}
+
 function board:read()
    local t, ch, i, j
+   local board_chunk = false
+   local skip, bstart, bend, found
+   local is_board
 
    self.width = 0
+   self.height = 0
    self.square = {}
 
+   if index[level] ~= nil then
+      skip = index[level][1]
+   elseif #index > 0 then
+      skip = index[#index][2]
+   end
+
+   print(level, skip)
+
    j = 1
+   ln = 1
+   found = false
    for line in love.filesystem.lines("levels.txt") do
-      if #line > self.width then
-         self.width = #line
+      if skip and ln < skip then
+         goto continue
       end
 
-      t = {}
-      for i = 1, #line do
-         ch = line:sub(i,i)
-         if ch == '@' then
-            self.player = { j = j, i = i }
-            ch = ' '
+      is_board = is_board_line(line)
+      if not board_chunk and is_board then
+         bstart = ln
+      elseif board_chunk and not is_board then
+         bend = ln
+         if index[level] == nil then
+            index[level] = {bstart, bend}
          end
-         table.insert(t, ch)
+         found = true
+         break
       end
 
-      table.insert(self.square, t)
-      j = j + 1
-    end
-    self.height = j - 1
+      if is_board then
+         board_chunk = true
+         if #line > self.width then
+            self.width = #line
+         end
+
+         t = {}
+         for i = 1, #line do
+            ch = line:sub(i,i)
+            if ch == '@' then
+               self.player = { j = j, i = i }
+               ch = ' '
+            elseif ch == '+' then
+               self.player = { j = j, i = i }
+               ch = '.'
+            end
+            table.insert(t, ch)
+         end
+
+         table.insert(self.square, t)
+         j = j + 1
+      end
+      ::continue::
+      ln = ln + 1
+   end
+   self.height = j - 1
+
+   if not found then
+      level = level - 1
+      board:read()
+   end
+end
+
+function is_board_line(line)
+   if #line == 0 then return false end
+   local c = line:sub(1,1)
+   return c == ' ' or c == '#'
 end
 
 function board:draw(canvas)
@@ -191,6 +245,7 @@ screens = {
          board_px_width = board.width * tile_x
          board_px_height = board.height * tile_y
          canvas = love.graphics.newCanvas(board_px_width, board_px_height)
+         redraw = true
       end,
       keypressed = function(key)
          if     key == "up"     then command = commands.up
@@ -199,17 +254,27 @@ screens = {
          elseif key == "right"  then command = commands.right
          elseif key == "escape" then command = commands.exit
          elseif key == "r"      then command = commands.restart
+         elseif key == "n"      then command = commands.next_lvl
+         elseif key == "p"      then command = commands.previous_lvl
          end
       end,
       update = function(dt)
          local moved = board:move(command)
          if moved and board:is_win() then
+            level = level + 1
             screens:set_screen('congrats')
          end
          redraw = redraw or moved
          if command == commands.restart then
-            board:read()
-            redraw = true
+            screens.game.init()
+         elseif command == commands.next_lvl then
+            level = level + 1
+            screens.game.init()
+         elseif command == commands.previous_lvl then
+            if level > 1 then
+               level = level - 1
+            end
+            screens.game.init()
          elseif command == commands.exit then
             love.event.quit()
          end
