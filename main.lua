@@ -3,8 +3,18 @@ time = 0
 
 level = {}
 
+commands = {
+   up = {},
+   down = {},
+   left = {},
+   right = {},
+   exit = {}
+}
+command = nil
+
 function love.load()
     math.randomseed(os.time())
+    love.keyboard.setKeyRepeat(true)
 
     local tiles = love.graphics.newImage("tiles.jpg")
     local dx, xy = tiles:getDimensions()
@@ -49,8 +59,7 @@ function level:generate()
 end
 
 function level:draw(canvas)
-   local what
-   local x, y
+   local what, x, y
    spriteBatch:clear()
    for j = 1, self.height do
       for i = 1, self.width do
@@ -80,26 +89,30 @@ end
 
 redraw = true
 function love.update(dt)
-    if love.keyboard.isDown("right") then
+   if command == commands.right then
       level.player.i = level.player.i + 1
       redraw = true
-   end
-    if love.keyboard.isDown("left") then
+   elseif command == commands.left then
       level.player.i = level.player.i - 1
       redraw = true
-   end
- 
-    if love.keyboard.isDown("down") then
+   elseif command == commands.down then
       level.player.j = level.player.j + 1
       redraw = true
-   end
-    if love.keyboard.isDown("up") then
+   elseif command == commands.up then
       level.player.j = level.player.j - 1
       redraw = true
-   end
-
-    if love.keyboard.isDown("escape") then
+   elseif love.keyboard.isDown("escape") then
       love.event.quit()
+   end
+   command = nil
+end
+
+function love.keypressed(key)
+   if key == "up" then command = commands.up
+   elseif key == "down" then command = commands.down
+   elseif key == "left" then command = commands.left
+   elseif key == "right" then command = commands.right
+   elseif key == "escape" then command = commands.exit
    end
 end
  
