@@ -43,6 +43,7 @@ function board:read()
    local board_chunk = false
    local skip, bstart, bend, found
    local is_board
+   local spaces
 
    self.width = 0
    self.height = 0
@@ -83,6 +84,7 @@ function board:read()
          end
 
          t = {}
+         spaces = true
          for i = 1, #line do
             ch = line:sub(i,i)
             if ch == '@' then
@@ -92,7 +94,16 @@ function board:read()
                self.player = { j = j, i = i }
                ch = '.'
             end
+            if ch ~= ' ' then
+               spaces = false
+            elseif spaces then
+               ch = '_'
+            end
             table.insert(t, ch)
+         end
+
+         while t[#t] == ' ' do
+            table.remove(t)
          end
 
          table.insert(self.square, t)
