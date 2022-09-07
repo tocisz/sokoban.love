@@ -140,10 +140,10 @@ function board:is_empty(j, i)
 end
 
 function love.keypressed(key)
-   if key == "up" then command = commands.up
-   elseif key == "down" then command = commands.down
-   elseif key == "left" then command = commands.left
-   elseif key == "right" then command = commands.right
+   if     key == "up"     then command = commands.up
+   elseif key == "down"   then command = commands.down
+   elseif key == "left"   then command = commands.left
+   elseif key == "right"  then command = commands.right
    elseif key == "escape" then command = commands.exit
    end
 end
