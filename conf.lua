@@ -1,4 +1,5 @@
 function love.conf(t)
-    t.window.title = "Sokoban"          -- The window title (string)
+    t.window.title = "Sokoban"
     t.window.fullscreen = false
+    t.window.resizable = true
 end

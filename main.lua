@@ -40,6 +40,11 @@ function love.load()
     screens:set_screen('title')
 end
 
+function love.resize(w, h)
+   width, height = w, h
+   redraw = true
+end
+
 index = {}
 
 function board:read()
@@ -223,15 +228,14 @@ Splash = {
    keypressed = function(key)
       command = commands.enter
    end,
+   init = function()
+      redraw = true
+   end,
    update = function()
       if command == commands.enter then
          screens:set_screen('game')
       end
       command = nil
-      redraw = true
-   end,
-   draw = function()
-      love.graphics.draw(canvas)
    end
 }
 
@@ -245,13 +249,10 @@ end
 screens = {
 
    title = Splash:new{
-      init = function()
-         canvas = love.graphics.newCanvas()
-         love.graphics.setCanvas(canvas)
+      draw = function()
          local cy = height / 2
          print_centered(cy-150, love.graphics.newFont(50), "Sokoban")
          print_centered(cy, love.graphics.newFont(30), "press any key to start")
-         love.graphics.setCanvas()
       end
    },
 
@@ -306,13 +307,10 @@ screens = {
    },
 
    congrats = Splash:new{
-      init = function()
-         canvas = love.graphics.newCanvas()
-         love.graphics.setCanvas(canvas)
+      draw = function()
          local cy = height / 2
          print_centered(cy-150, love.graphics.newFont(50), "Congratulations!")
          print_centered(cy, love.graphics.newFont(30), "LEVEL COMPLETE")
-         love.graphics.setCanvas()
       end
    }
 
