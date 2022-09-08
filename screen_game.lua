@@ -1,5 +1,7 @@
 require "graphics_util"
 
+local board_px_width, board_px_height
+
 screens.game = {
     init = function()
         board:read()
