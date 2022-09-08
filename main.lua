@@ -284,7 +284,13 @@ screens = {
          local absx = math.abs(dx)
          local absy = math.abs(dy)
          if absx < 20 and absy < 20 then
-            command = commands.exit
+            if presses == 1 then
+               command = commands.next_lvl
+            elseif presses == 2 then
+               command = commands.previous_lvl
+            else
+               command = commands.exit
+            end
          elseif absx > absy then
             command = dx > 0 and commands.right or commands.left
          else
