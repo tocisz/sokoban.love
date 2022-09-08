@@ -1,8 +1,17 @@
 board = {}
 index = {}
 
-level = 1
+level = 1 -- current level
 
+--[[]
+This is the longest method and it's ugly. It reads text file line by line. If level to be loaded is not the first
+than lines are skipped until we find it.
+
+Better would be to read this whole file once and dump nicely parsed levels to disk.
+
+This method also tries to remove outside-of-the-board squares (and fails in case when it's not beginning or end of the line).
+Better would be to do this as post processing by calculating (graph) reachability.
+]]
 function board:read()
     local t, ch, i, j
     local board_chunk = false
