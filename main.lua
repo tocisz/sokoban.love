@@ -228,6 +228,9 @@ Splash = {
    keypressed = function(key)
       command = commands.enter
    end,
+   mousepressed = function(x, y, button, istouch, presses)
+      command = commands.enter
+   end,
    init = function()
       redraw = true
    end,
@@ -273,6 +276,19 @@ screens = {
          elseif key == "r"      then command = commands.restart
          elseif key == "n"      then command = commands.next_lvl
          elseif key == "p"      then command = commands.previous_lvl
+         end
+      end,
+      mousepressed = function(x, y, button, istouch, presses)
+         local dx = x - width/2
+         local dy = y - height/2
+         local absx = math.abs(dx)
+         local absy = math.abs(dy)
+         if absx < 20 and absy < 20 then
+            command = commands.exit
+         elseif absx > absy then
+            command = dx > 0 and commands.right or commands.left
+         else
+            command = dy > 0 and commands.down or commands.up
          end
       end,
       update = function(dt)
@@ -379,6 +395,8 @@ function screens:set_screen(name)
       love.draw = self[name].draw
    end
    love.keypressed = self[name].keypressed
+   -- love.touchpressed = self[name].touchpressed
+   love.mousepressed = self[name].mousepressed
    self[name].init()
 end
 
