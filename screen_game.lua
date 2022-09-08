@@ -1,13 +1,10 @@
 require "graphics_util"
 
-local canvas = nil
-
 screens.game = {
     init = function()
         board:read()
         board_px_width = board.width * tile_x
         board_px_height = board.height * tile_y
-        canvas = love.graphics.newCanvas(board_px_width, board_px_height)
         redraw = true
     end,
 
@@ -68,9 +65,9 @@ screens.game = {
 
     draw = function()
         if redraw then
-            board:draw(canvas)
+            love.graphics.translate(cx(board_px_width), cy(board_px_height))
+            board:draw()
             redraw = false
         end
-        love.graphics.draw(canvas, cx(board_px_width), cy(board_px_height))
     end
 }

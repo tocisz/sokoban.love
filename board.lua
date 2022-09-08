@@ -102,7 +102,7 @@ function board:read()
     return c == ' ' or c == '#'
  end
  
- function board:draw(canvas)
+ function board:draw()
     local what, x, y
     spriteBatch:clear()
     for j = 1, self.height do
@@ -126,9 +126,7 @@ function board:read()
     y = (self.player.j-1) * tile_y
     x = (self.player.i-1) * tile_x
     spriteBatch:add(sprites.qPlayer, x, y)
-    love.graphics.setCanvas(canvas)
     love.graphics.draw(spriteBatch)
-    love.graphics.setCanvas()
  end
  
  function board:move(command)
