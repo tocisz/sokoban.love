@@ -1,3 +1,5 @@
+require "sprites"
+
 board = {}
 index = {}
 
@@ -109,21 +111,21 @@ function board:read()
           y = (j-1) * tile_y
           x = (i-1) * tile_x
           if what == ' ' then
-             spriteBatch:add(qEmpty, x, y)
+            spriteBatch:add(sprites.qEmpty, x, y)
           elseif what == '.' then
-             spriteBatch:add(qEmptyOk, x, y)
+            spriteBatch:add(sprites.qEmptyOk, x, y)
           elseif what == '#' then
-             spriteBatch:add(qBrick, x, y)
+            spriteBatch:add(sprites.qBrick, x, y)
           elseif what == '$' then
-             spriteBatch:add(qBox, x, y)
+            spriteBatch:add(sprites.qBox, x, y)
           elseif what == '*' then
-             spriteBatch:add(qBoxOk, x, y)
+            spriteBatch:add(sprites.qBoxOk, x, y)
           end
        end
     end
     y = (self.player.j-1) * tile_y
     x = (self.player.i-1) * tile_x
-    spriteBatch:add(qPlayer, x, y)
+    spriteBatch:add(sprites.qPlayer, x, y)
     love.graphics.setCanvas(canvas)
     love.graphics.draw(spriteBatch)
     love.graphics.setCanvas()

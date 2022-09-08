@@ -1,3 +1,4 @@
+require "sprites"
 require "board"
 require "screens"
 require "screen_title"
@@ -27,15 +28,7 @@ function love.load()
     math.randomseed(os.time())
     love.keyboard.setKeyRepeat(true)
 
-    local tiles = love.graphics.newImage("data/tiles.jpg")
-    local dx, xy = tiles:getDimensions()
-    spriteBatch = love.graphics.newSpriteBatch(tiles)
-    qBrick = love.graphics.newQuad(1, 0, tile_x, tile_y, dx, xy)
-    qBoxOk = love.graphics.newQuad(1+tile_x*2, 0, tile_x, tile_y, dx, xy)
-    qBox = love.graphics.newQuad(1+tile_x, 2*tile_y, tile_x, tile_y, dx, xy)
-    qEmpty = love.graphics.newQuad(1+tile_x, tile_y, tile_x, tile_y, dx, xy)
-    qEmptyOk = love.graphics.newQuad(1+tile_x*2, tile_y, tile_x, tile_y, dx, xy)
-    qPlayer = love.graphics.newQuad(1+tile_x*3, tile_y-1, tile_x, tile_y, dx, xy)
+    sprites:init()
     width, height = love.graphics.getDimensions()
 
     screens:set_screen('title')
