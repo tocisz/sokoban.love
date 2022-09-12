@@ -5,8 +5,8 @@ local board_px_width, board_px_height
 screens.game = {
     init = function()
         board:read()
-        board_px_width = board.width * tile_x
-        board_px_height = board.height * tile_y
+        board_px_width = board:px_width()
+        board_px_height = board:px_height()
         redraw = true
     end,
 

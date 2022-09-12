@@ -108,8 +108,8 @@ function board:read()
     for j = 1, self.height do
        for i = 1, self.width do
           what = self.square[j][i]
-          y = (j-1) * tile_y
-          x = (i-1) * tile_x
+          y = (j-1) * sprites.tile_y
+          x = (i-1) * sprites.tile_x
           if what == ' ' then
             spriteBatch:add(sprites.qEmpty, x, y)
           elseif what == '.' then
@@ -123,8 +123,8 @@ function board:read()
           end
        end
     end
-    y = (self.player.j-1) * tile_y
-    x = (self.player.i-1) * tile_x
+    y = (self.player.j-1) * sprites.tile_y
+    x = (self.player.i-1) * sprites.tile_x
     spriteBatch:add(sprites.qPlayer, x, y)
     love.graphics.draw(spriteBatch)
  end
@@ -187,4 +187,12 @@ function board:read()
        end
     end
     return true
+ end
+
+ function board:px_width()
+   return self.width * sprites.tile_x
+ end
+
+ function board:px_height()
+   return self.height * sprites.tile_y
  end

@@ -9,8 +9,6 @@ options = {
    experimentalRun = true
 }
 
-tile_x, tile_y = 24, 24
-
 commands = {
    up = {},
    down = {},
