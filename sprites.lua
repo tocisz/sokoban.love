@@ -3,16 +3,16 @@ spriteBatch = nil
 
 
 function sprites:init()
-    local tile_x, tile_y = 24, 24
-    local tiles = love.graphics.newImage("data/tiles.jpg")
+    local w, h = 32, 32
+    local tiles = love.graphics.newImage("data/sprites.png")
     local dx, xy = tiles:getDimensions()
     spriteBatch = love.graphics.newSpriteBatch(tiles)
-    self.qBrick = love.graphics.newQuad(1, 0, tile_x, tile_y, dx, xy)
-    self.qBoxOk = love.graphics.newQuad(1+tile_x*2, 0, tile_x, tile_y, dx, xy)
-    self.qBox = love.graphics.newQuad(1+tile_x, 2*tile_y, tile_x, tile_y, dx, xy)
-    self.qEmpty = love.graphics.newQuad(1+tile_x, tile_y, tile_x, tile_y, dx, xy)
-    self.qEmptyOk = love.graphics.newQuad(1+tile_x*2, tile_y, tile_x, tile_y, dx, xy)
-    self.qPlayer = love.graphics.newQuad(1+tile_x*3, tile_y-1, tile_x, tile_y, dx, xy)
-    self.tile_x = tile_x
-    self.tile_y = tile_y
+    self.qBrick = love.graphics.newQuad(0, 0, w, h, dx, xy)
+    self.qBoxOk = love.graphics.newQuad(0, h+1, w, h, dx, xy)
+    self.qBox = love.graphics.newQuad((w+1)*2, 0, w, h, dx, xy)
+    self.qEmpty = love.graphics.newQuad((w+1)*2, h+1, w, h, dx, xy)
+    self.qMarker = love.graphics.newQuad(w+1, 0, w, h, dx, xy)
+    self.qPlayer = love.graphics.newQuad(w+1, h, w, h+1, dx, xy)
+    self.width = w
+    self.height = h
 end

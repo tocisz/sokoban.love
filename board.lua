@@ -103,17 +103,18 @@ function board:read()
  end
  
  function board:draw()
-    local what, x, y
+    local what, x, y, i, j
     spriteBatch:clear()
     for j = 1, self.height do
        for i = 1, self.width do
           what = self.square[j][i]
-          y = (j-1) * sprites.tile_y
-          x = (i-1) * sprites.tile_x
+          y = (j-1) * sprites.height
+          x = (i-1) * sprites.width
           if what == ' ' then
             spriteBatch:add(sprites.qEmpty, x, y)
           elseif what == '.' then
-            spriteBatch:add(sprites.qEmptyOk, x, y)
+            spriteBatch:add(sprites.qEmpty, x, y)
+            spriteBatch:add(sprites.qMarker, x, y)
           elseif what == '#' then
             spriteBatch:add(sprites.qBrick, x, y)
           elseif what == '$' then
@@ -123,9 +124,13 @@ function board:read()
           end
        end
     end
-    y = (self.player.j-1) * sprites.tile_y
-    x = (self.player.i-1) * sprites.tile_x
-    spriteBatch:add(sprites.qPlayer, x, y)
+    j, i = self.player.j, self.player.i
+    y = (j-1) * sprites.height
+    x = (i-1) * sprites.width
+    spriteBatch:add(sprites.qPlayer, x, y-1)
+    if self.square[j][i] == '.' then
+      spriteBatch:add(sprites.qMarker, x, y)
+    end
     love.graphics.draw(spriteBatch)
  end
  
@@ -190,9 +195,9 @@ function board:read()
  end
 
  function board:px_width()
-   return self.width * sprites.tile_x
+   return self.width * sprites.width
  end
 
  function board:px_height()
-   return self.height * sprites.tile_y
+   return self.height * sprites.height
  end
