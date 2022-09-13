@@ -23,8 +23,11 @@ commands = {
 command = nil
 
 function love.load()
-    math.randomseed(os.time())
     love.keyboard.setKeyRepeat(true)
+	local os = love.system.getOS()
+	if os == "Android" then
+		love.window.setFullscreen(true)
+	end
 
     sprites:init()
     width, height = love.graphics.getDimensions()
@@ -35,6 +38,11 @@ end
 function love.resize(w, h)
    width, height = w, h
    redraw = true
+end
+
+function love.displayrotated()
+	width, height = love.graphics.getDimensions()
+	redraw = true
 end
 
 function experimentalRun()
