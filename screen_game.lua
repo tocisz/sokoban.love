@@ -2,6 +2,7 @@ local love = require("love")
 local screens = require("screens")
 local board = require("board")
 local commands = require("commands")
+local history = require("history")
 
 local board_px_width, board_px_height
 
@@ -14,14 +15,26 @@ screens.game = {
     end,
 
     keypressed = function(key)
-        if     key == "up"     then commands.command = commands.up
-        elseif key == "down"   then commands.command = commands.down
-        elseif key == "left"   then commands.command = commands.left
-        elseif key == "right"  then commands.command = commands.right
-        elseif key == "escape" then commands.command = commands.exit
-        elseif key == "r"      then commands.command = commands.restart
-        elseif key == "n"      then commands.command = commands.next_lvl
-        elseif key == "p"      then commands.command = commands.previous_lvl
+        if     key == "up" or key == "w" then
+            commands.command = commands.up
+        elseif key == "down" or key == "s" then
+            commands.command = commands.down
+        elseif key == "left" or key == "a" then
+            commands.command = commands.left
+        elseif key == "right" or key == "d" then
+            commands.command = commands.right
+        elseif key == "escape" or key == "q" then
+            commands.command = commands.exit
+        elseif key == "r" then
+            commands.command = commands.restart
+        elseif key == "n" then
+            commands.command = commands.next_lvl
+        elseif key == "p" then
+            commands.command = commands.previous_lvl
+        elseif key == "[" then
+            commands.command = commands.undo
+        elseif key == "]" then
+            commands.command = commands.redo
         end
     end,
 
@@ -49,7 +62,7 @@ screens.game = {
         local moved = board:move(commands.command)
         if moved and board:is_win() then
             board.level = board.level + 1
-            screens:set_screen('congrats')
+            screens:set_screen("congrats")
         end
         screens.redraw = screens.redraw or moved
         if commands.command == commands.restart then
@@ -62,6 +75,12 @@ screens.game = {
                 board.level = board.level - 1
             end
             screens.game.init()
+        elseif commands.command == commands.undo then
+            board:apply(history:undo())
+            screens.redraw = true
+        elseif commands.command == commands.redo then
+            board:apply(history:redo())
+            screens.redraw = true
         elseif commands.command == commands.exit then
             love.event.quit()
         end
@@ -70,6 +89,9 @@ screens.game = {
 
     draw = function()
         if screens.redraw then
+            love.graphics.setFont(love.graphics.newFont(10))
+            love.graphics.print("moves: " .. history.current.moves, 5, 5)
+            love.graphics.print("pushes: " .. history.current.pushes, 5, 20)
             love.graphics.translate(screens.cx(board_px_width), screens.cy(board_px_height))
             board:draw()
             screens.redraw = false

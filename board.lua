@@ -1,6 +1,7 @@
 local love = require("love")
 local sprites = require("sprites")
 local commands = require("commands")
+local history = require("history")
 
 local board = {
    level = 1 -- current level
@@ -103,6 +104,7 @@ function board:read()
       board.level = board.level - 1
       board:read()
    end
+   history:clear()
  end
 
 function board:draw()
@@ -148,15 +150,17 @@ function board:move(command)
       return false
    end
 
-   if board:can_move(dj, di) then
-      self.player.j = self.player.j + dj
-      self.player.i = self.player.i + di
-      return true
+   local move, push = board:can_move(dj, di)
+   if move then
+      local m = {dj, di, push}
+      board:apply(m)
+      history:store(m)
    end
-   return false
+   return move
 end
 
 -- can player move in given direction
+-- returns: {can_move, is_push}
 function board:can_move(dj, di)
    local new_j, new_i
    new_j = self.player.j + dj
@@ -164,19 +168,12 @@ function board:can_move(dj, di)
    if board:is_outside(new_j, new_i) then
       return false
    elseif board:is_empty(new_j, new_i) then
-      return true
+      return true, false
    elseif self.square[new_j][new_i] == '$' or self.square[new_j][new_i] == '*' then
       local next_j = new_j + dj
       local next_i = new_i + di
       local push = board:is_empty(next_j, next_i)
-      -- do push
-      if push then
-         local from_goal = self.square[new_j][new_i] == '*'
-         local to_goal = self.square[next_j][next_i] == '.'
-         self.square[new_j][new_i]   = from_goal and '.' or ' '
-         self.square[next_j][next_i] = to_goal   and '*' or '$'
-      end
-      return push
+      return push, push
    end
    return false
 end
@@ -197,6 +194,37 @@ function board:is_win()
       end
    end
    return true
+end
+
+function board:apply(m)
+   if not m then return end
+
+   local dj, di, push, undo = m[1], m[2], m[3], m[4]
+   if undo then
+      dj, di = -dj, -di
+   end
+   local next_j = self.player.j + dj
+   local next_i = self.player.i + di
+   if push then
+      local from_j, from_i, to_j, to_i
+      if undo then
+         to_j = self.player.j
+         to_i = self.player.i
+         from_j = to_j - dj
+         from_i = to_i - di
+      else
+         from_j = next_j
+         from_i = next_i
+         to_j = from_j + dj
+         to_i = from_i + di
+      end
+      local from_goal = self.square[from_j][from_i] == '*'
+      local to_goal = self.square[to_j][to_i] == '.'
+      self.square[from_j][from_i] = from_goal and '.' or ' '
+      self.square[to_j][to_i]     = to_goal   and '*' or '$'
+   end
+   self.player.j = next_j
+   self.player.i = next_i
 end
 
 function board:px_width()

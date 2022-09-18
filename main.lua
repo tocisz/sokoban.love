@@ -1,13 +1,9 @@
 local love = require("love")
 local sprites = require("sprites")
 local screens = require("screens")
-require "screen_title"
-require "screen_congrats"
-require "screen_game"
-
-local history = require("history")
-history:test(2)
-history:test2(2)
+require("screen_title")
+require("screen_congrats")
+require("screen_game")
 local options = require("options")
 
 function love.load()

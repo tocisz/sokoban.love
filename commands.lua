@@ -9,7 +9,9 @@ local commands = {
     restart = {},
     enter = {},
     next_lvl = {},
-    previous_lvl = {}
+    previous_lvl = {},
+    undo = {},
+    redo = {}
 }
 
 return commands
