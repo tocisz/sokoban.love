@@ -1,12 +1,11 @@
-sprites = {}
-spriteBatch = nil
-
+local love = require("love")
+local sprites = {}
 
 function sprites:init()
     local w, h = 32, 32
     local tiles = love.graphics.newImage("data/sprites.png")
     local dx, xy = tiles:getDimensions()
-    spriteBatch = love.graphics.newSpriteBatch(tiles)
+    self.sprite_batch = love.graphics.newSpriteBatch(tiles)
     self.qBrick = love.graphics.newQuad(0, 0, w, h, dx, xy)
     self.qBox   = love.graphics.newQuad(0, h+1, w, h, dx, xy)
     self.qBoxOk = love.graphics.newQuad((w+1)*2, 0, w, h, dx, xy)
@@ -16,3 +15,5 @@ function sprites:init()
     self.width = w
     self.height = h
 end
+
+return sprites

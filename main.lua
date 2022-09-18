@@ -1,26 +1,14 @@
-require "sprites"
-require "board"
-require "screens"
+local love = require("love")
+local sprites = require("sprites")
+local screens = require("screens")
 require "screen_title"
 require "screen_congrats"
 require "screen_game"
 
-options = {
-   experimentalRun = true
-}
-
-commands = {
-   up = {},
-   down = {},
-   left = {},
-   right = {},
-   exit = {},
-   restart = {},
-   enter = {},
-   next_lvl = {},
-   previous_lvl = {}
-}
-command = nil
+local history = require("history")
+history:test(2)
+history:test2(2)
+local options = require("options")
 
 function love.load()
     love.keyboard.setKeyRepeat(true)
@@ -30,22 +18,22 @@ function love.load()
 	end
 
     sprites:init()
-    width, height = love.graphics.getDimensions()
+    screens.width, screens.height = love.graphics.getDimensions()
 
     screens:set_screen('title')
 end
 
 function love.resize(w, h)
-   width, height = w, h
-   redraw = true
+   screens.width, screens.height = w, h
+   screens.redraw = true
 end
 
 function love.displayrotated()
-	width, height = love.graphics.getDimensions()
-	redraw = true
+	screens.width, screens.height = love.graphics.getDimensions()
+	screens.redraw = true
 end
 
-function experimentalRun()
+local function experimentalRun()
 	if love.load then love.load(love.arg.parseGameArguments(arg), arg) end
 
 	-- We don't want the first frame's dt to include time taken by love.load.
