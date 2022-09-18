@@ -102,7 +102,7 @@ function board:read()
 
    if not found then
       board.level = board.level - 1
-      board:read()
+      self:read()
    end
    history:clear()
  end
@@ -153,7 +153,7 @@ function board:move(command)
    local move, push = board:can_move(dj, di)
    if move then
       local m = {dj, di, push}
-      board:apply(m)
+      self:apply(m)
       history:store(m)
    end
    return move
@@ -165,14 +165,14 @@ function board:can_move(dj, di)
    local new_j, new_i
    new_j = self.player.j + dj
    new_i = self.player.i + di
-   if board:is_outside(new_j, new_i) then
+   if self:is_outside(new_j, new_i) then
       return false
-   elseif board:is_empty(new_j, new_i) then
+   elseif self:is_empty(new_j, new_i) then
       return true, false
    elseif self.square[new_j][new_i] == '$' or self.square[new_j][new_i] == '*' then
       local next_j = new_j + dj
       local next_i = new_i + di
-      local push = board:is_empty(next_j, next_i)
+      local push = self:is_empty(next_j, next_i)
       return push, push
    end
    return false
@@ -183,7 +183,7 @@ function board:is_outside(j, i)
 end
 
 function board:is_empty(j, i)
-   return not board:is_outside(j, i)
+   return not self:is_outside(j, i)
          and (self.square[j][i] == ' ' or self.square[j][i] == '.')
 end
 
