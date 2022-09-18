@@ -27,4 +27,14 @@ jobs:
       - name: Luacheck
         uses: lunarmodules/luacheck@v1.0.0
 
+      - name: Create archive
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          mkdir -p release
+          zip release/sokoban.love *.lua data/*
 
+      - name: Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: "release/sokoban.love"
