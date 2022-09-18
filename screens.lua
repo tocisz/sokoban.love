@@ -5,7 +5,8 @@ local options = require("options")
 local screens = {
    redraw = false,
    width = 1,
-   height = 1
+   height = 1,
+   scale = 1
 }
 
 function screens:set_screen(name)
@@ -16,6 +17,7 @@ function screens:set_screen(name)
          if screens.redraw then
             love.graphics.origin()
             love.graphics.clear(love.graphics.getBackgroundColor())
+            love.graphics.scale(screens.scale)
             ddraw()
             love.graphics.present()
             screens.redraw = false

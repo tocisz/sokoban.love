@@ -109,35 +109,34 @@ function board:read()
 
 function board:draw()
    local what, x, y
-   local sprite_batch = sprites.sprite_batch
-   sprite_batch:clear()
+   sprites:clear()
    for j = 1, self.height do
       for i = 1, self.width do
          what = self.square[j][i]
          y = (j-1) * sprites.height
          x = (i-1) * sprites.width
          if what == ' ' then
-         sprite_batch:add(sprites.qEmpty, x, y)
+         sprites:add("empty", x, y)
          elseif what == '.' then
-         sprite_batch:add(sprites.qEmpty, x, y)
-         sprite_batch:add(sprites.qMarker, x, y)
+         sprites:add("empty", x, y)
+         sprites:add("marker", x, y)
          elseif what == '#' then
-         sprite_batch:add(sprites.qBrick, x, y)
+         sprites:add("brick", x, y)
          elseif what == '$' then
-         sprite_batch:add(sprites.qBox, x, y)
+         sprites:add("box", x, y)
          elseif what == '*' then
-         sprite_batch:add(sprites.qBoxOk, x, y)
+         sprites:add("box_ok", x, y)
          end
       end
    end
    local j, i = self.player.j, self.player.i
    y = (j-1) * sprites.height
    x = (i-1) * sprites.width
-   sprite_batch:add(sprites.qPlayer, x, y-1)
+   sprites:add("player", x, y)
    if self.square[j][i] == '.' then
-   sprite_batch:add(sprites.qMarker, x, y)
+   sprites:add("marker", x, y)
    end
-   love.graphics.draw(sprite_batch)
+   sprites:draw(sprites.sprite_batch)
 end
 
 function board:move(command)

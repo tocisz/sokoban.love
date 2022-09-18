@@ -15,17 +15,23 @@ function love.load()
 
     sprites:init()
     screens.width, screens.height = love.graphics.getDimensions()
+	screens.width = screens.width / screens.scale
+	screens.height = screens.height / screens.scale
 
     screens:set_screen('title')
 end
 
 function love.resize(w, h)
    screens.width, screens.height = w, h
-   screens.redraw = true
+   screens.width = screens.width / screens.scale
+   screens.height = screens.height / screens.scale
+  screens.redraw = true
 end
 
 function love.displayrotated()
 	screens.width, screens.height = love.graphics.getDimensions()
+	screens.width = screens.width / screens.scale
+	screens.height = screens.height / screens.scale
 	screens.redraw = true
 end
 

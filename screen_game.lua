@@ -9,8 +9,8 @@ local board_px_width, board_px_height
 screens.game = {
     init = function()
         board:read()
-        board_px_width = board:px_width()
-        board_px_height = board:px_height()
+        board_px_width = board:px_width() --* screens.scale
+        board_px_height = board:px_height() --* screens.scale
         screens.redraw = true
     end,
 
@@ -88,13 +88,10 @@ screens.game = {
     end,
 
     draw = function()
-        if screens.redraw then
-            love.graphics.setFont(love.graphics.newFont(10))
-            love.graphics.print("moves: " .. history.current.moves, 5, 5)
-            love.graphics.print("pushes: " .. history.current.pushes, 5, 20)
-            love.graphics.translate(screens.cx(board_px_width), screens.cy(board_px_height))
-            board:draw()
-            screens.redraw = false
-        end
+        love.graphics.setFont(love.graphics.newFont(10))
+        love.graphics.print("moves: " .. history.current.moves, 5, 5)
+        love.graphics.print("pushes: " .. history.current.pushes, 5, 20)
+        love.graphics.translate(screens.cx(board_px_width), screens.cy(board_px_height))
+        board:draw()
     end
 }
