@@ -59,12 +59,6 @@ screens.game = {
     end,
 
     update = function()
-        local moved = board:move(commands.command)
-        if moved and board:is_win() then
-            board.level = board.level + 1
-            screens:set_screen("congrats")
-        end
-        screens.redraw = screens.redraw or moved
         if commands.command == commands.restart then
             screens.game.init()
         elseif commands.command == commands.next_lvl then
@@ -83,6 +77,14 @@ screens.game = {
             screens.redraw = true
         elseif commands.command == commands.exit then
             love.event.quit()
+        else
+            -- game move
+            local moved = board:move(commands.command)
+            screens.redraw = moved
+            if moved and board:is_win() then
+                board.level = board.level + 1
+                screens:set_screen("congrats")
+            end
         end
         commands.command = nil
     end,
