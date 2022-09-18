@@ -27,7 +27,7 @@ jobs:
       - name: Create archive
         run: |
           mkdir -p release
-          zip release/sokoan.love *.lua data/*
+          zip release/sokoban.love *.lua data/*
 
       - name: Release
         uses: softprops/action-gh-release@v1
