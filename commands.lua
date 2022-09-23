@@ -11,7 +11,8 @@ local commands = {
     next_lvl = {},
     previous_lvl = {},
     undo = {},
-    redo = {}
+    redo = {},
+    loading = {}
 }
 
 return commands

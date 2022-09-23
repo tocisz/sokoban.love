@@ -11,8 +11,8 @@ local screens = {
 
 function screens:set_screen(name)
    love.update = self[name].update
+   local ddraw = self[name].draw
    if options.experimentalRun then
-      local ddraw = self[name].draw
       love.draw = function()
          if screens.redraw then
             love.graphics.origin()
@@ -24,7 +24,7 @@ function screens:set_screen(name)
          end
       end
    else
-      love.draw = self[name].draw
+      love.draw = ddraw
    end
    love.keypressed = self[name].keypressed
    -- love.touchpressed = self[name].touchpressed
@@ -41,12 +41,15 @@ screens.Splash = {
    end,
    init = function()
       screens.redraw = true
+      commands.command = nil
    end,
    update = function()
       if commands.command == commands.enter then
+         commands.command = nil
          screens:set_screen('game')
+      else
+         commands.command = nil
       end
-      commands.command = nil
    end
 }
 

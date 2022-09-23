@@ -1,3 +1,5 @@
+local love = require("love")
+local commands = require("commands")
 local history = {}
 
 function history:clear()
@@ -39,6 +41,12 @@ function history:redo()
 
     return {m[1], m[2], m[3], false}
 end
+
+function history:peek()
+    if self.current.moves == 0 then return nil end
+    return self.list[self.current.moves]
+end
+
 
 function history:store(m)
     local push = m[3]
@@ -85,5 +93,47 @@ function history.repr1(dj, di, push)
     end
     return r
 end
+
+function history:save(name)
+    local save_string = self:repr()
+    love.filesystem.write(name .. ".sav", save_string)
+end
+
+function history:load(name)
+    name = name .. ".sav"
+    self.save_string = nil
+    self.loading_pos = 0
+    if love.filesystem.getInfo(name, "file") then
+        self.save_string = love.filesystem.read(name)
+        if string.len(self.save_string) > 0 then
+            self.loading_pos = 1
+        end
+    end
+end
+
+function history:is_loading()
+    return self.loading_pos > 0
+end
+
+function history:get_load_move()
+    local r = string.sub(self.save_string, self.loading_pos, self.loading_pos)
+    local ru = string.upper(r)
+    local push = r == ru
+    local cmd = nil
+    if ru == "L" then cmd = commands.left
+    elseif ru == "R" then cmd = commands.right
+    elseif ru == "U" then cmd = commands.up
+    elseif ru == "D" then cmd = commands.down
+    end
+    if cmd then
+        self.loading_pos = self.loading_pos + 1
+        if self.loading_pos > string.len(self.save_string) then
+            self.loading_pos = 0
+        end
+        return cmd, push
+    end
+    error("wrong save file")
+end
+
 
 return history

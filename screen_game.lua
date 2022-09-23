@@ -7,15 +7,23 @@ local history = require("history")
 local board_px_width, board_px_height
 
 screens.game = {
+    -- init function for screen can set first command to be executed
+    -- if it doesn't want to accept command from previous screen it should set command to nil
     init = function()
         board:read()
+        history:load(board.level)
         board_px_width = board:px_width() --* screens.scale
         board_px_height = board:px_height() --* screens.scale
         screens.redraw = true
+        if history:is_loading() then
+            commands.command = commands.loading
+        else
+            commands.command = nil
+        end
     end,
 
     keypressed = function(key)
-        if     key == "up" or key == "w" then
+        if key == "up" or key == "w" then
             commands.command = commands.up
         elseif key == "down" or key == "s" then
             commands.command = commands.down
@@ -59,34 +67,52 @@ screens.game = {
     end,
 
     update = function()
-        if commands.command == commands.restart then
+        if commands.command == commands.loading then
+            local move, push = history:get_load_move()
+            local moved = board:move(move)
+            if not moved then error("invalid move in save file") end
+            local m = history:peek()
+            if not m then error("internal error") end
+            if m[3] ~= push then error("push inconsistency in save file") end
+            if not history:is_loading() then
+                commands.command = nil -- ready for the next command
+            end
+            screens.redraw = true
+        elseif commands.command == commands.restart then
+            history:clear()
+            history:save(board.level)
             screens.game.init()
         elseif commands.command == commands.next_lvl then
+            history:save(board.level)
             board.level = board.level + 1
             screens.game.init()
         elseif commands.command == commands.previous_lvl then
             if board.level > 1 then
+                history:save(board.level)
                 board.level = board.level - 1
             end
             screens.game.init()
         elseif commands.command == commands.undo then
             board:apply(history:undo())
             screens.redraw = true
+            commands.command = nil
         elseif commands.command == commands.redo then
             board:apply(history:redo())
             screens.redraw = true
+            commands.command = nil
         elseif commands.command == commands.exit then
+            history:save(board.level)
             love.event.quit()
         else
             -- game move
             local moved = board:move(commands.command)
             screens.redraw = moved
+            commands.command = nil
             if moved and board:is_win() then
                 board.level = board.level + 1
                 screens:set_screen("congrats")
             end
         end
-        commands.command = nil
     end,
 
     draw = function()
