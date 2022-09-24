@@ -12,13 +12,13 @@ local history = {
     }
 }
 
+history.score.__index = history.score
 function history.score:new(moves, pushes)
     local o = {
         moves = moves or 0,
         pushes = pushes or 0
     }
     setmetatable(o, self)
-    self.__index = self
     return o
 end
 

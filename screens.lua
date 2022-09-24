@@ -52,11 +52,11 @@ screens.Splash = {
       end
    end
 }
+screens.Splash.__index = screens.Splash
 
 function screens.Splash:new(o)
    o = o or {}
    setmetatable(o, self)
-   self.__index = self
    return o
 end
 
