@@ -145,21 +145,15 @@ end
 
 function history:read_best(name)
     name = name .. ".best"
+    local moves, pushes = 0, 0
     if love.filesystem.getInfo(name, "file") then
         local data = love.filesystem.read("data", name)
-        local moves, pushes = love.data.unpack(">I>I", data)
-        self.best = {
-            moves = moves,
-            pushes = pushes
-        }
-        print("best moves " .. moves)
-        print("best pushes " .. pushes)
-    else
-        self.best = {
-            moves = 0,
-            pushes = 0
-        }
+        moves, pushes = love.data.unpack(">I>I", data)
     end
+    self.best = {
+        moves = moves,
+        pushes = pushes
+    }
 end
 
 function history.compare_stats(a, b)
