@@ -5,7 +5,6 @@ Sokoban in Love (lua)
 
 ## TODO
 
-- [ ] store and show best result for the level
 - [ ] automatic push of selected box
 - [ ] scale down to fit level on Android
 - [ ] move by dragging on Android
@@ -14,3 +13,4 @@ Sokoban in Love (lua)
 ---
 - [x] read level metadata
 - [x] level title screen: info
+- [x] store and show best result for the level

@@ -108,6 +108,9 @@ screens.game = {
             screens.redraw = moved
             commands.command = nil
             if moved and board:is_win() then
+                if history.best.moves == 0 or history.compare_stats(history.best, history.current) then
+                    history:save_as_best(board.level)
+                end
                 board.level = board.level + 1
                 screens:set_screen("congrats")
             end
@@ -116,8 +119,8 @@ screens.game = {
 
     draw = function()
         love.graphics.setFont(love.graphics.newFont(10))
-        love.graphics.print("moves: " .. history.current.moves, 5, 5)
-        love.graphics.print("pushes: " .. history.current.pushes, 5, 20)
+        love.graphics.print("pushes: " .. history.current.pushes, 5, 5)
+        love.graphics.print("moves: " .. history.current.moves, 5, 20)
         love.graphics.translate(screens.cx(board_px_width), screens.cy(board_px_height))
         board:draw()
     end

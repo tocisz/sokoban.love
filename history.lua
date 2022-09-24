@@ -135,5 +135,39 @@ function history:get_load_move()
     error("wrong save file")
 end
 
+function history:save_as_best(name)
+    local data = love.data.pack("data", ">I>I", self.total.moves, self.total.pushes)
+    local success, message = love.filesystem.write(name .. ".best", data)
+    if not success then
+        error("Failed to write "..message)
+    end
+end
+
+function history:read_best(name)
+    name = name .. ".best"
+    if love.filesystem.getInfo(name, "file") then
+        local data = love.filesystem.read("data", name)
+        local moves, pushes = love.data.unpack(">I>I", data)
+        self.best = {
+            moves = moves,
+            pushes = pushes
+        }
+        print("best moves " .. moves)
+        print("best pushes " .. pushes)
+    else
+        self.best = {
+            moves = 0,
+            pushes = 0
+        }
+    end
+end
+
+function history.compare_stats(a, b)
+    if a.pushes ~= b.pushes then
+        return a.pushes > b.pushes
+    else
+        return a.moves > b.moves
+    end
+end
 
 return history
