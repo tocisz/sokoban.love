@@ -6,6 +6,76 @@ local history = require("history")
 
 local board_px_width, board_px_height
 
+local key_to_command = {
+    up = commands.up,
+    down = commands.down,
+    left = commands.left,
+    right = commands.right,
+    w = commands.up,
+    s = commands.down,
+    a = commands.left,
+    d = commands.right,
+    escape = commands.exit,
+    r = commands.restart,
+    n = commands.next_lvl,
+    p = commands.previous_lvl,
+    ["["] = commands.undo,
+    ["]"] = commands.redo
+}
+
+local update_actions = {
+    [commands.loading] = function()
+        local move, push = history:get_load_move()
+        local moved = board:move(move)
+        if not moved then error("invalid move in save file") end
+        local m = history:peek()
+        if not m then error("internal error") end
+        if m[3] ~= push then error("push inconsistency in save file") end
+        if not history:is_loading() then
+            commands.command = nil -- ready for the next command
+        end
+        screens.redraw = true
+    end,
+
+    [commands.restart] = function()
+        board:read()
+        history:clear()
+        history:save(board.level)
+        screens.game.init()
+    end,
+
+    [commands.next_lvl] = function()
+        history:save(board.level)
+        board.level = board.level + 1
+        screens:set_screen("title")
+    end,
+
+    [commands.previous_lvl] = function()
+        if board.level > 1 then
+            history:save(board.level)
+            board.level = board.level - 1
+        end
+        screens:set_screen("title")
+    end,
+
+    [commands.undo] = function()
+        board:apply(history:undo())
+        screens.redraw = true
+        commands.command = nil
+    end,
+
+    [commands.redo] = function()
+        board:apply(history:redo())
+        screens.redraw = true
+        commands.command = nil
+    end,
+
+    [commands.exit] = function()
+        history:save(board.level)
+        love.event.quit()
+    end
+}
+
 screens.game = {
     -- init function for screen can set first command to be executed
     -- if it doesn't want to accept command from previous screen it should set command to nil
@@ -22,27 +92,7 @@ screens.game = {
     end,
 
     keypressed = function(key)
-        if key == "up" or key == "w" then
-            commands.command = commands.up
-        elseif key == "down" or key == "s" then
-            commands.command = commands.down
-        elseif key == "left" or key == "a" then
-            commands.command = commands.left
-        elseif key == "right" or key == "d" then
-            commands.command = commands.right
-        elseif key == "escape" or key == "q" then
-            commands.command = commands.exit
-        elseif key == "r" then
-            commands.command = commands.restart
-        elseif key == "n" then
-            commands.command = commands.next_lvl
-        elseif key == "p" then
-            commands.command = commands.previous_lvl
-        elseif key == "[" then
-            commands.command = commands.undo
-        elseif key == "]" then
-            commands.command = commands.redo
-        end
+        commands.command = key_to_command[key]
     end,
 
     mousepressed = function(x, y, _, _, presses)
@@ -66,42 +116,9 @@ screens.game = {
     end,
 
     update = function()
-        if commands.command == commands.loading then
-            local move, push = history:get_load_move()
-            local moved = board:move(move)
-            if not moved then error("invalid move in save file") end
-            local m = history:peek()
-            if not m then error("internal error") end
-            if m[3] ~= push then error("push inconsistency in save file") end
-            if not history:is_loading() then
-                commands.command = nil -- ready for the next command
-            end
-            screens.redraw = true
-        elseif commands.command == commands.restart then
-            history:clear()
-            history:save(board.level)
-            screens.game.init()
-        elseif commands.command == commands.next_lvl then
-            history:save(board.level)
-            board.level = board.level + 1
-            screens:set_screen("title")
-        elseif commands.command == commands.previous_lvl then
-            if board.level > 1 then
-                history:save(board.level)
-                board.level = board.level - 1
-            end
-            screens:set_screen("title")
-        elseif commands.command == commands.undo then
-            board:apply(history:undo())
-            screens.redraw = true
-            commands.command = nil
-        elseif commands.command == commands.redo then
-            board:apply(history:redo())
-            screens.redraw = true
-            commands.command = nil
-        elseif commands.command == commands.exit then
-            history:save(board.level)
-            love.event.quit()
+        local action = update_actions[commands.command]
+        if action then
+            action()
         else
             -- game move
             local moved = board:move(commands.command)
