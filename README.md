@@ -5,12 +5,12 @@ Sokoban in Love (lua)
 
 ## TODO
 
-- [ ] store best result for the level
-- [x] read level metadata
-- [x] level title screen: info
-- [ ] level title screen: best result
+- [ ] store and show best result for the level
 - [ ] automatic push of selected box
 - [ ] scale down to fit level on Android
 - [ ] move by dragging on Android
 - [ ] parsed level cache
 - [ ] sounds
+---
+- [x] read level metadata
+- [x] level title screen: info
