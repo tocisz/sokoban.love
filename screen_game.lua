@@ -10,7 +10,6 @@ screens.game = {
     -- init function for screen can set first command to be executed
     -- if it doesn't want to accept command from previous screen it should set command to nil
     init = function()
-        board:read()
         history:load(board.level)
         board_px_width = board:px_width() --* screens.scale
         board_px_height = board:px_height() --* screens.scale
@@ -85,13 +84,13 @@ screens.game = {
         elseif commands.command == commands.next_lvl then
             history:save(board.level)
             board.level = board.level + 1
-            screens.game.init()
+            screens:set_screen("title")
         elseif commands.command == commands.previous_lvl then
             if board.level > 1 then
                 history:save(board.level)
                 board.level = board.level - 1
             end
-            screens.game.init()
+            screens:set_screen("title")
         elseif commands.command == commands.undo then
             board:apply(history:undo())
             screens.redraw = true

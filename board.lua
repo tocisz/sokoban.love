@@ -4,7 +4,8 @@ local commands = require("commands")
 local history = require("history")
 
 local board = {
-   level = 1 -- current level
+   level = 1, -- current level
+   metadata = {}
 }
 local index = {}
 
@@ -12,6 +13,15 @@ local function is_board_line(line)
    if #line == 0 then return false end
    local c = line:sub(1,1)
    return c == ' ' or c == '#'
+end
+
+local function is_comment_line(line)
+   local c = line:sub(1,1)
+   return c == ';'
+end
+
+local function is_empty_line(line)
+   return string.len(line) == 0
 end
 
 --[[
@@ -27,6 +37,7 @@ Better would be to do this as post processing by calculating (graph) reachabilit
 function board:read()
    local t, ch, j, ln
    local board_chunk = false
+   local meta_chunk = false
    local skip, bstart, bend, found
    local is_board
    local spaces
@@ -51,19 +62,32 @@ function board:read()
          goto continue
       end
 
+      if is_comment_line(line) then
+         goto continue
+      end
+
       is_board = is_board_line(line)
       if not board_chunk and is_board then
          bstart = ln
-      elseif board_chunk and not is_board then
-         bend = ln
-         if index[board.level] == nil then
-            index[board.level] = {bstart, bend}
-         end
-         found = true
-         break
+      elseif board_chunk and not meta_chunk and not is_board then
+         meta_chunk = true
+         self.metadata = {}
       end
 
-      if is_board then
+      if meta_chunk then
+         if is_empty_line(line) then
+            -- empty line means end of metadata
+            bend = ln
+            if index[board.level] == nil then
+               index[board.level] = {bstart, bend}
+            end
+            found = true
+            break
+         end
+         for k, v in string.gmatch(line, "([^:]+): (.*)") do
+            self.metadata[k] = v
+         end
+      elseif is_board then
          board_chunk = true
          if #line > self.width then
             self.width = #line

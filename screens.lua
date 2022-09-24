@@ -46,7 +46,7 @@ screens.Splash = {
    update = function()
       if commands.command == commands.enter then
          commands.command = nil
-         screens:set_screen('game')
+         screens:set_screen("game")
       else
          commands.command = nil
       end
