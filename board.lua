@@ -52,8 +52,6 @@ function board:read()
       skip = index[#index][2]
    end
 
-   print(board.level, skip)
-
    j = 1
    ln = 1
    found = false
@@ -132,11 +130,10 @@ function board:read()
  end
 
 function board:draw()
-   local what, x, y
+   local x, y
    sprites:clear()
-   for j = 1, self.height do
-      for i = 1, self.width do
-         what = self.square[j][i]
+   for j, row in ipairs(self.square) do
+      for i, what in ipairs(row) do
          y = (j-1) * sprites.height
          x = (i-1) * sprites.width
          if what == ' ' then
