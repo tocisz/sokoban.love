@@ -1,17 +1,31 @@
 local love = require("love")
 local commands = require("commands")
-local history = {}
+local history = {
+    score = {
+        __lt = function(a, b)
+            if a.pushes ~= b.pushes then
+                return a.pushes < b.pushes
+            else
+                return a.moves < b.moves
+            end
+        end
+    }
+}
+
+function history.score:new(moves, pushes)
+    local o = {
+        moves = moves or 0,
+        pushes = pushes or 0
+    }
+    setmetatable(o, self)
+    self.__index = self
+    return o
+end
 
 function history:clear()
     self.list = {}
-    self.current = {
-        moves = 0,
-        pushes = 0
-    }
-    self.total = {
-        moves = 0,
-        pushes = 0
-    }
+    self.current = history.score:new()
+    self.total = history.score:new()
 end
 
 -- returns: {dj, di, push, is_undo}
@@ -150,18 +164,7 @@ function history:read_best(name)
         local data = love.filesystem.read("data", name)
         moves, pushes = love.data.unpack(">I>I", data)
     end
-    self.best = {
-        moves = moves,
-        pushes = pushes
-    }
-end
-
-function history.compare_stats(a, b)
-    if a.pushes ~= b.pushes then
-        return a.pushes > b.pushes
-    else
-        return a.moves > b.moves
-    end
+    self.best = history.score:new(moves, pushes)
 end
 
 return history

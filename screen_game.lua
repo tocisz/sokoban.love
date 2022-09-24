@@ -108,7 +108,7 @@ screens.game = {
             screens.redraw = moved
             commands.command = nil
             if moved and board:is_win() then
-                if history.best.moves == 0 or history.compare_stats(history.best, history.current) then
+                if history.best.moves == 0 or history.best > history.current then
                     history:save_as_best(board.level)
                 end
                 board.level = board.level + 1
